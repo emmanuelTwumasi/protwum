@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">Book</string>
+    <string name="error_data_message">Error Loading data from the Google books API</string>
+    <string name="img_icon_descrip">book icon</string>
+    <string name="title_text">Title text</string>
+    <string name="title_textview">Title TextView</string>
+    <string name="publisher">Publisher</string>
+    <string name="publisheddate">PublishedDate</string>
+    <string name="search">search</string>
+</resources>
