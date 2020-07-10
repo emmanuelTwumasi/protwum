@@ -23,6 +23,10 @@ public class ApiUtil {
     private static Scanner sScanner;
     private static final String QUERY_PARAMETER_KEY = "q";
     private static final String KEY = "key";
+    private static final String TITLE= "intitle";
+    private static final String AUTHOR = "inauthor";
+    private static final String PUBLISHER = "inpublisher";
+    private static final String ISBN = "inisbn";
 
 
     public static final String BASE_API_URL = "https://www.googleapis.com/books/v1/volumes";
@@ -45,7 +49,29 @@ public class ApiUtil {
         return  url;
     }
 
+    public static URL buildURL(String title, String author, String publisher, String isbn ){
+        URL url =null;// null a start
+        StringBuilder sb= new StringBuilder();
+        if (!title.isEmpty() )sb.append(TITLE+ title +"+");
+        if (!author.isEmpty() )sb.append(AUTHOR + author+"+");
+        if (!publisher.isEmpty() )sb.append(PUBLISHER+publisher+"+");
+        if (!isbn.isEmpty() )sb.append(ISBN+isbn+"+");
+        sb.setLength(sb.length()-1);
+        String query = sb.toString();
+        //build uri
+        Uri uri = Uri.parse(BASE_API_URL).buildUpon()
+                .appendQueryParameter(QUERY_PARAMETER_KEY,query)
+                .appendQueryParameter(KEY,API_KEY).build();
+        //build url from uri created
+        try{
+                url = new URL(uri.toString());
+    }
+        catch(Exception e){
+            e.printStackTrace();
 
+        }
+    return url;
+    }
     //connects to the google api
     public static String getJson(URL url)throws IOException {
         //reads data
@@ -82,6 +108,9 @@ public class ApiUtil {
         final String AUTHORS = "authors";
         final String PUBLISHER ="publisher";
         final String PUBLISHED_DATE ="publishedDate";
+        final String DESCRIPTION = "description";
+        final String IMAGELINKS ="imageLinks";
+        final String THUMBNAIL ="thumbnail";
         final String ITEMS = "items";
         final String VOLUMEINFO = "volumeInfo";
 
@@ -90,6 +119,7 @@ public class ApiUtil {
             JSONObject jsonBooks = new JSONObject(json);
             JSONArray arrayBooks = jsonBooks.getJSONArray(ITEMS);
 
+
             //fetch no. of books
             int numberOfBooks = arrayBooks.length();
 
@@ -97,8 +127,18 @@ public class ApiUtil {
                 JSONObject bookJSON = arrayBooks.getJSONObject(i);
                 JSONObject volumeInfoJSON =
                         bookJSON.getJSONObject(VOLUMEINFO);
-
-                int authorNum = volumeInfoJSON.getJSONArray(AUTHORS).length();
+                JSONObject imageLinksJSON = null;//return nothing for books without image in their json file
+               if (volumeInfoJSON.has(IMAGELINKS) )
+               {
+                  imageLinksJSON = volumeInfoJSON.getJSONObject(IMAGELINKS);
+               }
+                int authorNum;
+                //check whether there's author or not, if yes read but no returns 0
+                try{
+                    authorNum = volumeInfoJSON.getJSONArray(AUTHORS).length();
+                }catch(Exception e){
+                    authorNum =0;
+                }
                 String[] authors = new String[authorNum];
                 for (int j=0; j<authorNum;j++) {
                     authors[j] = volumeInfoJSON.getJSONArray(AUTHORS).get(j).toString();
@@ -108,11 +148,11 @@ public class ApiUtil {
                         volumeInfoJSON.getString(TITLE),
                         (volumeInfoJSON.isNull(SUBTITLE)?"":volumeInfoJSON.getString(SUBTITLE)),
                         authors,
-                        volumeInfoJSON.getString(PUBLISHER),
-                        volumeInfoJSON.getString(PUBLISHED_DATE));
-
+                        (volumeInfoJSON.isNull(PUBLISHER)?"":volumeInfoJSON.getString(PUBLISHER)),
+                        (volumeInfoJSON.isNull(PUBLISHED_DATE)?"":volumeInfoJSON.getString(PUBLISHED_DATE)),
+                        (volumeInfoJSON.isNull(DESCRIPTION)?"":volumeInfoJSON.getString(DESCRIPTION)),
+                        ((imageLinksJSON==null)?"":imageLinksJSON.getString(THUMBNAIL)));
                         books.add(book);
-
             }
         }
         catch (JSONException e){
@@ -121,4 +161,5 @@ public class ApiUtil {
 
         return books;
     }
+
 }

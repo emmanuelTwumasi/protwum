@@ -7,4 +7,12 @@
     <string name="publisher">Publisher</string>
     <string name="publisheddate">PublishedDate</string>
     <string name="search">search</string>
+    <string name="book_image">book image</string>
+    <string name="hint_title">Insert Title</string>
+    <string name="hint_author">Insert Author</string>
+    <string name="hint_publisher">Insert Publisher</string>
+    <string name="hint_isbn">Insert ISBN</string>
+    <string name="advance_search">Advance Search</string>
+    <string name="no_search_data">Please insert valid data</string>
+
 </resources>

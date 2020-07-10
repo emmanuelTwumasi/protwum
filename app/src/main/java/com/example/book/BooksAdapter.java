@@ -1,6 +1,8 @@
 package com.example.book;
 
 import android.content.Context;
+import android.content.Intent;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,7 +40,7 @@ public class BooksAdapter extends RecyclerView.Adapter< BooksAdapter.BookViewHol
     }
 
     //define views and bind data
-    public class BookViewHolder extends  RecyclerView.ViewHolder{
+    public class BookViewHolder extends  RecyclerView.ViewHolder implements View.OnClickListener{
 
         TextView tvTitle;
         TextView tvAuthors;
@@ -50,21 +52,38 @@ public class BooksAdapter extends RecyclerView.Adapter< BooksAdapter.BookViewHol
             tvAuthors= (TextView) itemView.findViewById(R.id.tvAuthors);
             tvDate = (TextView) itemView.findViewById(R.id.tvPublishedDate);
             tvPublisher =(TextView) itemView.findViewById(R.id.tvPublisher);
+            itemView.setOnClickListener(this);
         }
         public void bind (Book book){
             tvTitle.setText(book.title);
+
+            //populates the author space in an unbind format
+//            int i = 0;
+////            for (String author:book.authors){
+////                authors +=author;
+////                i++;
+////                if (i<book.authors.length){
+////                    authors+=", ";
+////                }
+////            }
+            //data binding will require for authors string call
             String authors ="";
-            int i = 0;
-            for (String author:book.authors){
-                authors +=author;
-                i++;
-                if (i<book.authors.length){
-                    authors+=", ";
-                }
-            }
-            tvAuthors.setText(authors);
+            tvAuthors.setText(book.authors);
             tvDate.setText(book.publishedDate);
             tvPublisher.setText(book.publisher);
+        }
+
+        @Override
+        public void onClick(View v) {
+
+            //get position of book clicked on
+            int Position = getAdapterPosition();
+            Log.d("Click", String.valueOf(Position));
+            Book selectedBook = books.get(Position);
+
+            Intent intent = new Intent(v.getContext(),BookDetail.class);
+            intent.putExtra("Book",selectedBook);
+            v.getContext().startActivity(intent);
         }
     }
 }

@@ -1,10 +1,6 @@
 package com.example.book;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.view.MenuItemCompat;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -14,6 +10,11 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.SearchView;
 import android.widget.TextView;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.MenuItemCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import java.io.IOException;
 import java.net.URL;
@@ -25,6 +26,8 @@ public class BookListActivity extends AppCompatActivity implements SearchView.On
     private TextView mTvError;
     private ProgressBar mLoadingProgress;
     private RecyclerView mRvBooks;
+    private URL mBookUrl;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,12 +35,19 @@ public class BookListActivity extends AppCompatActivity implements SearchView.On
         setContentView(R.layout.activity_main);
         mLoadingProgress = (ProgressBar) findViewById(R.id.pb_loading);
         mRvBooks =(RecyclerView) findViewById(R.id.rv_books);
+        Intent intent=getIntent();
+        String query = intent.getStringExtra("Query");
 
         try {
+            if (query==null||query.isEmpty()){
             //looks for books with the title
-            URL bookUrl = ApiUtil.buildUrl("java");
+                mBookUrl = ApiUtil.buildUrl("java");
+            }else {
+                //create a url from the string passed
+                mBookUrl = new URL(query);
+            }
 //            String jsonResult = ApiUtil.getJason(bookUrl);
-            new BooksQueryTask().execute(bookUrl);
+            new BooksQueryTask().execute(mBookUrl);
 
         } catch (Exception e) {
             Log.d("error", e.getMessage());
@@ -58,6 +68,18 @@ public class BookListActivity extends AppCompatActivity implements SearchView.On
         final SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
         searchView.setOnQueryTextListener(this);
         return true;
+    }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle item selection
+        switch (item.getItemId()) {
+            case R.id.action_advance_search:
+                Intent intent = new Intent(this,SearchActivity.class);
+                startActivity(intent);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
     @Override
@@ -105,16 +127,17 @@ public class BookListActivity extends AppCompatActivity implements SearchView.On
                 mTvError.setVisibility(View.VISIBLE);
             }else{
                 mRvBooks.setVisibility(View.VISIBLE);
-            }
 
-            ArrayList<Book> books = ApiUtil.getBooksFromJson(result);
-              String resultString = "";
+                ArrayList<Book> books = ApiUtil.getBooksFromJson(result);
+                String resultString = "";
 //            for (Book book:books){
 //                resultString =resultString + book.title+"\n"+book.publishedDate+"\n\n";
 //            }
 
-            BooksAdapter adapter = new BooksAdapter(books);
-            mRvBooks.setAdapter(adapter);
+                BooksAdapter adapter = new BooksAdapter(books);
+                mRvBooks.setAdapter(adapter);
+            }
+
         }
 
         //before execution set progress bar to visible
