@@ -49,7 +49,7 @@ public class ApiUtil {
         return  url;
     }
 
-    public static URL buildURL(String title, String author, String publisher, String isbn ){
+    public static URL buildUrl(String title, String author, String publisher, String isbn ){
         URL url =null;// null a start
         StringBuilder sb= new StringBuilder();
         if (!title.isEmpty() )sb.append(TITLE+ title +"+");
